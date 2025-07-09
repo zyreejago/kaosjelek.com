@@ -8,9 +8,12 @@ use App\Livewire\ShoppingCart;
 use App\Livewire\Checkout;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\HomeController;
 use App\Services\CartService;
 
-Route::get('/', ProductCatalog::class)->name('home');
+// Change this line from ProductCatalog::class to HomeController
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products', ProductCatalog::class)->name('products');
 Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');
 Route::get('/cart', ShoppingCart::class)->name('cart');
 Route::get('/checkout-new', \App\Livewire\Checkout::class)->name('checkout.new');

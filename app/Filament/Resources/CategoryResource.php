@@ -70,6 +70,8 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('image')
+                    ->disk('public')  // Tambahkan ini
+                    ->visibility('public')  // Tambahkan ini
                     ->circular()
                     ->size(50),
                     

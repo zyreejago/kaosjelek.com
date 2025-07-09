@@ -42,12 +42,12 @@ class ProductCatalog extends Component
             $this->sortDirection = 'asc';
         }
     }
-    
+
     public function render()
     {
         $query = Product::with('category')
-            ->where('stock_quantity', '>', 0) // Ganti dari 'stock' ke 'stock_quantity'
-            ->where('is_active', true); // Tambahkan filter untuk produk aktif
+            ->where('stock_quantity', '>', 0)
+            ->where('is_active', true);
             
         if ($this->search) {
             $query->where(function($q) {

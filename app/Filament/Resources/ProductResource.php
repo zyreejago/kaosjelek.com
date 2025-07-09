@@ -124,6 +124,8 @@ class ProductResource extends Resource
                             ->image()
                             ->multiple()
                             ->directory('products')
+                            ->disk('public')
+                            ->visibility('public')
                             ->maxFiles(5)
                             ->reorderable()
                             ->columnSpanFull(),
@@ -146,7 +148,13 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('images')
-                    ->getStateUsing(fn ($record) => $record->images[0] ?? null)
+                    ->getStateUsing(function ($record) {
+                        if ($record->images && count($record->images) > 0) {
+                            return $record->images[0];
+                        }
+                        return null;
+                    })
+                    ->disk('public')
                     ->circular()
                     ->size(50),
                     
