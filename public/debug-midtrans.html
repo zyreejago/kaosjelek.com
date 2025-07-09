@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Midtrans - Improved</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .token-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Midtrans Integration - Improved</h1>
+        
+        <div class="debug-info">
+            <h3>📋 Informasi Debug</h3>
+            <p><strong>Client Key:</strong> <span id="client-key">Loading...</span></p>
+            <p><strong>Environment:</strong> <span id="environment">Sandbox</span></p>
+            <p><strong>Snap Token:</strong> <span id="snap-token">Not generated</span></p>
+            <p><strong>Order ID:</strong> <span id="order-id">-</span></p>
+            <p><strong>Amount:</strong> <span id="amount">-</span></p>
+            <p><strong>Snap.js Status:</strong> <span id="snap-status">Loading...</span></p>
+            <p><strong>Browser:</strong> <span id="browser-info"></span></p>
+        </div>
+
+        <div class="debug-info">
+            <h3>🎯 Test Actions</h3>
+            <button id="load-script-btn">1. Load Snap Script</button>
+            <button id="generate-token-btn" disabled>2. Generate Real Token</button>
+            <button id="test-popup-btn" disabled>3. Test Popup</button>
+            <button id="validate-btn">4. Validate Setup</button>
+            <button id="clear-log-btn">Clear Log</button>
+        </div>
+
+        <div class="debug-info" id="token-section" style="display: none;">
+            <h3>🎫 Generated Token</h3>
+            <div class="token-display" id="token-display"></div>
+        </div>
+
+        <div class="log" id="debug-log"></div>
+    </div>
+
+    <script>
+        // Debug logger dengan timestamp dan tipe yang lebih baik
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString('id-ID');
+            const colors = {
+                info: '#00ff00',
+                error: '#ff0000',
+                warning: '#ffff00',
+                success: '#00ffff',
+                debug: '#ff00ff'
+            };
+            
+            const icon = {
+                info: 'ℹ️',
+                error: '❌',
+                warning: '⚠️',
+                success: '✅',
+                debug: '🔍'
+            };
+            
+            logElement.innerHTML += `<div style="color: ${colors[type]}">[${timestamp}] ${icon[type]} ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Konfigurasi dengan key asli dari .env
+        const CONFIG = {
+            clientKey: 'SB-Mid-client-B8BOQKKiV-KCKQ0u', // Key asli dari .env
+            isProduction: false,
+            backendUrl: window.location.origin // Otomatis detect URL
+        };
+
+        let snapToken = null;
+        let orderData = null;
+        let snapScriptLoaded = false;
+
+        // Update UI info dengan status indicator
+        function updateInfo() {
+            document.getElementById('client-key').textContent = CONFIG.clientKey;
+            document.getElementById('environment').textContent = CONFIG.isProduction ? 'Production' : 'Sandbox';
+            document.getElementById('snap-token').textContent = snapToken || 'Not generated';
+            document.getElementById('order-id').textContent = orderData?.order_id || '-';
+            document.getElementById('amount').textContent = orderData?.amount ? `Rp ${orderData.amount.toLocaleString('id-ID')}` : '-';
+            
+            const snapStatus = document.getElementById('snap-status');
+            if (typeof window.snap !== 'undefined') {
+                snapStatus.innerHTML = '<span class="status-indicator status-success"></span>✅ Loaded & Ready';
+                snapScriptLoaded = true;
+            } else {
+                snapStatus.innerHTML = '<span class="status-indicator status-error"></span>❌ Not loaded';
+                snapScriptLoaded = false;
+            }
+            
+            document.getElementById('browser-info').textContent = `${navigator.userAgent.split(' ').slice(-2).join(' ')}`;
+            
+            // Update button states
+            document.getElementById('generate-token-btn').disabled = !snapScriptLoaded;
+            document.getElementById('test-popup-btn').disabled = !snapToken || !snapScriptLoaded;
+        }
+
+        // 1. Load Snap Script dengan Promise
+        function loadSnapScript() {
+            return new Promise((resolve, reject) => {
+                log('🔄 Loading Snap.js script...', 'info');
+                
+                // Remove existing script
+                const existingScript = document.querySelector('script[src*="snap.js"]');
+                if (existingScript) {
+                    existingScript.remove();
+                    log('🗑️ Removed existing script', 'warning');
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+                script.setAttribute('data-client-key', CONFIG.clientKey);
+                
+                script.onload = function() {
+                    log('✅ Snap.js loaded successfully!', 'success');
+                    
+                    // Test snap object dengan delay
+                    setTimeout(() => {
+                        if (typeof window.snap !== 'undefined') {
+                            log('✅ Snap object is available and ready', 'success');
+                            log(`🔍 Snap object methods: ${Object.getOwnPropertyNames(window.snap).join(', ')}`, 'debug');
+                            updateInfo();
+                            resolve(true);
+                        } else {
+                            log('❌ Snap object not available after load', 'error');
+                            reject(new Error('Snap object not available'));
+                        }
+                    }, 1500);
+                };
+                
+                script.onerror = function() {
+                    log('❌ Failed to load Snap.js', 'error');
+                    reject(new Error('Failed to load Snap.js'));
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        // 2. Generate Real Token dari Laravel Backend
+        async function generateRealToken() {
+            log('🔄 Generating real token from Laravel backend...', 'info');
+            
+            try {
+                const response = await fetch(`${CONFIG.backendUrl}/debug-token`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    snapToken = data.snap_token;
+                    orderData = {
+                        order_id: data.order_id,
+                        amount: data.amount
+                    };
+                    
+                    log('✅ Real token generated successfully!', 'success');
+                    log(`🎫 Token: ${snapToken.substring(0, 20)}...`, 'info');
+                    log(`📦 Order ID: ${orderData.order_id}`, 'info');
+                    log(`💰 Amount: Rp ${orderData.amount.toLocaleString('id-ID')}`, 'info');
+                    
+                    // Show token section
+                    document.getElementById('token-section').style.display = 'block';
+                    document.getElementById('token-display').textContent = snapToken;
+                    
+                    updateInfo();
+                } else {
+                    throw new Error(data.error || 'Unknown error from backend');
+                }
+                
+            } catch (error) {
+                log(`❌ Failed to generate token: ${error.message}`, 'error');
+                log('🔍 Check if Laravel server is running and /debug-token route exists', 'warning');
+            }
+        }
+
+        // 3. Test Popup dengan validasi lengkap
+        function testPopup() {
+            log('🚀 Testing Midtrans popup...', 'info');
+            
+            // Validasi lengkap
+            if (typeof window.snap === 'undefined') {
+                log('❌ Snap object not available', 'error');
+                return;
+            }
+
+            if (!snapToken) {
+                log('❌ No snap token available', 'error');
+                return;
+            }
+
+            if (snapToken.startsWith('MOCK-TOKEN-')) {
+                log('⚠️ Cannot test popup with mock token', 'warning');
+                return;
+            }
+
+            try {
+                log('🎯 Calling window.snap.pay with real token...', 'info');
+                log(`🔍 Token length: ${snapToken.length} characters`, 'debug');
+                
+                window.snap.pay(snapToken, {
+                    onSuccess: function(result) {
+                        log('✅ Payment SUCCESS!', 'success');
+                        log(`📄 Result: ${JSON.stringify(result, null, 2)}`, 'info');
+                    },
+                    onPending: function(result) {
+                        log('⏳ Payment PENDING', 'warning');
+                        log(`📄 Result: ${JSON.stringify(result, null, 2)}`, 'info');
+                    },
+                    onError: function(result) {
+                        log('❌ Payment ERROR', 'error');
+                        log(`📄 Result: ${JSON.stringify(result, null, 2)}`, 'error');
+                    },
+                    onClose: function() {
+                        log('❌ Popup closed by user', 'warning');
+                    }
+                });
+                
+                log('✅ Popup should now be visible!', 'success');
+                
+            } catch (error) {
+                log(`❌ Exception during popup: ${error.message}`, 'error');
+                log(`🔍 Error stack: ${error.stack}`, 'debug');
+            }
+        }
+
+        // 4. Validate Setup
+        function validateSetup() {
+            log('🔍 Validating Midtrans setup...', 'info');
+            
+            // Check client key
+            if (!CONFIG.clientKey || CONFIG.clientKey.includes('YOUR_CLIENT_KEY')) {
+                log('❌ Invalid client key configuration', 'error');
+            } else {
+                log('✅ Client key configured', 'success');
+            }
+            
+            // Check script loading
+            const snapScript = document.querySelector('script[src*="snap.js"]');
+            if (snapScript) {
+                log('✅ Snap script element found', 'success');
+            } else {
+                log('❌ Snap script element not found', 'error');
+            }
+            
+            // Check snap object
+            if (typeof window.snap !== 'undefined') {
+                log('✅ Snap object available', 'success');
+                log(`🔍 Snap methods: ${Object.getOwnPropertyNames(window.snap).join(', ')}`, 'debug');
+            } else {
+                log('❌ Snap object not available', 'error');
+            }
+            
+            // Check network connectivity
+            fetch('https://app.sandbox.midtrans.com/snap/snap.js', { method: 'HEAD' })
+                .then(() => log('✅ Network connectivity to Midtrans OK', 'success'))
+                .catch(() => log('❌ Network connectivity to Midtrans FAILED', 'error'));
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+            log('🧹 Log cleared', 'info');
+        }
+
+        // Event listeners
+        document.getElementById('load-script-btn').onclick = () => {
+            loadSnapScript().catch(error => {
+                log(`❌ Script loading failed: ${error.message}`, 'error');
+            });
+        };
+        
+        document.getElementById('generate-token-btn').onclick = generateRealToken;
+        document.getElementById('test-popup-btn').onclick = testPopup;
+        document.getElementById('validate-btn').onclick = validateSetup;
+        document.getElementById('clear-log-btn').onclick = clearLog;
+
+        // Initialize
+        log('🔧 Debug page initialized - Improved Version', 'info');
+        log(`🌐 Backend URL: ${CONFIG.backendUrl}`, 'info');
+        log(`🔑 Client Key: ${CONFIG.clientKey}`, 'info');
+        updateInfo();
+
+        // Auto-check for snap dengan interval yang lebih efisien
+        let lastSnapStatus = false;
+        setInterval(() => {
+            const currentSnapStatus = typeof window.snap !== 'undefined';
+            if (currentSnapStatus !== lastSnapStatus) {
+                lastSnapStatus = currentSnapStatus;
+                updateInfo();
+                if (currentSnapStatus) {
+                    log('🔄 Snap object detected, updating UI', 'info');
+                }
+            }
+        }, 2000);
+
+        // Auto-load script on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🚀 Auto-loading Snap script...', 'info');
+                loadSnapScript().catch(error => {
+                    log(`❌ Auto-load failed: ${error.message}`, 'error');
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
