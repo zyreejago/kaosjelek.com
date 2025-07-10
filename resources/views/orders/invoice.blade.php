@@ -109,7 +109,7 @@
     <div class="invoice-container">
         <div class="header">
             <div class="company-info">
-                <h1>BajuJelek.com</h1>
+                <h1>Kaosjelek</h1>
                 <p>Fashion Store</p>
             </div>
             <div class="invoice-info">
