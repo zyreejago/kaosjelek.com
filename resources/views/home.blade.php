@@ -2,13 +2,13 @@
     <!-- Banner Section -->
     @if($banners->count() > 0)
         <div class="container mx-auto px-4 py-8">
-            @if($banners->count() <= 4)
-                <!-- Static Grid for 4 or fewer banners -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            @if($banners->count() <= 2)
+                <!-- Static Grid for 1 or 2 banners -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     @foreach($banners as $banner)
                         <div class="relative group cursor-pointer">
                             <!-- Banner Card -->
-                            <div class="aspect-square bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                            <div class="aspect-[1/0.8] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                                 @php
                                     $media = $banner->getFirstMedia('banner_images');
                                     $imagePath = $media ? $media->id . '/' . $media->file_name : null;
@@ -17,7 +17,7 @@
                                 @if($imagePath)
                                     <img src="/storage/{{ $imagePath }}" 
                                          alt="{{ $banner->title }}" 
-                                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-w-[700px] max-h-[700px] sm:max-w-none sm:max-h-none">
                                 @else
                                     <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                                         <span class="text-white font-bold text-lg">{{ substr($banner->title, 0, 1) }}</span>
@@ -59,13 +59,13 @@
                     @endforeach
                 </div>
             @else
-                <!-- Swiper for more than 4 banners -->
+                <!-- Swiper for more than 2 banners -->
                 <div class="relative">
                     <div class="swiper banner-cards-swiper">
                         <div class="swiper-wrapper">
-                            @foreach($banners->chunk(4) as $bannerChunk)
+                            @foreach($banners->chunk(2) as $bannerChunk)
                                 <div class="swiper-slide">
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-2 gap-4">
                                         @foreach($bannerChunk as $banner)
                                             <div class="relative group cursor-pointer">
                                                 <!-- Banner Card -->
@@ -78,7 +78,7 @@
                                                     @if($imagePath)
                                                         <img src="/storage/{{ $imagePath }}" 
                                                              alt="{{ $banner->title }}" 
-                                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-w-[200px] max-h-[200px] sm:max-w-none sm:max-h-none">
                                                     @else
                                                         <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                                                             <span class="text-white font-bold text-lg">{{ substr($banner->title, 0, 1) }}</span>
@@ -253,12 +253,53 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
+    <style>
+        /* Mobile Banner Adjustments */
+        @media (max-width: 639px) {
+            /* Smaller banner items */
+            .swiper-slide .grid .relative .aspect-square {
+                max-width: 120px !important;
+                max-height: 120px !important;
+            }
+            
+            /* Reduce padding and font size for badges */
+            .swiper-slide .grid .relative .absolute .bg-red-500 {
+                padding: 0.15rem 0.5rem !important;
+                font-size: 0.65rem !important;
+            }
+            
+            /* Reduce gap between items */
+            .swiper-slide .grid {
+                gap: 0.5rem !important;
+            }
+            
+            /* Smaller navigation buttons */
+            .swiper-button-next, .swiper-button-prev {
+                transform: scale(0.7);
+            }
+            
+            /* Reduce content overlay padding */
+            .swiper-slide .grid .relative .absolute.bottom-0 {
+                padding: 0.5rem !important;
+            }
+            
+            /* Smaller text in overlay */
+            .swiper-slide .grid .relative .absolute.bottom-0 h3 {
+                font-size: 0.7rem !important;
+            }
+            
+            .swiper-slide .grid .relative .absolute.bottom-0 p {
+                font-size: 0.65rem !important;
+            }
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Banner Cards Swiper (for more than 4 banners)
+            // Banner Cards Swiper (for more than 2 banners)
             const bannerCardsSwiper = new Swiper('.banner-cards-swiper', {
-                slidesPerView: 1,
-                spaceBetween: 30,
+                slidesPerView: 2,
+                spaceBetween: 10,
                 loop: true,
                 autoplay: {
                     delay: 5000,
