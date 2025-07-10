@@ -141,8 +141,8 @@
         </div>
         
         @if($featuredProducts->count() > 0)
-            <!-- Products Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Products Grid - 2 columns on mobile, smaller size -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 mb-8">
                 @foreach($featuredProducts as $product)
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group relative">
                         <!-- Product Image -->
@@ -194,33 +194,33 @@
                             </div>
                         </div>
                         
-                        <!-- Product Info -->
-                        <div class="p-5">
+                        <!-- Product Info - Simplified for mobile -->
+                        <div class="p-3 md:p-5">
                             <!-- Category -->
-                            <div class="mb-2">
+                            <div class="mb-1 md:mb-2">
                                 <span class="text-xs text-blue-600 uppercase tracking-wider font-semibold bg-blue-50 px-2 py-1 rounded-full">
                                     {{ $product->category->name }}
                                 </span>
                             </div>
                             
                             <!-- Product Name -->
-                            <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]" style="font-family: 'Papyrus', cursive;">
+                            <h3 class="text-sm md:text-lg font-bold text-gray-900 mb-2 md:mb-3 line-clamp-2 min-h-[2.5rem] md:min-h-[3.5rem]" style="font-family: 'Papyrus', cursive;">
                                 {{ $product->name }}
                             </h3>
                             
                             <!-- Price -->
-                            <div class="mb-4">
+                            <div class="mb-2 md:mb-4">
                                 @if($product->sale_price)
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xl font-bold text-red-600">
+                                    <div class="flex items-center space-x-1 md:space-x-2">
+                                        <span class="text-base md:text-xl font-bold text-red-600">
                                             Rp {{ number_format($product->sale_price, 0, ',', '.') }}
                                         </span>
-                                        <span class="text-sm text-gray-500 line-through">
+                                        <span class="text-xs md:text-sm text-gray-500 line-through">
                                             Rp {{ number_format($product->price, 0, ',', '.') }}
                                         </span>
                                     </div>
                                 @else
-                                    <span class="text-xl font-bold text-blue-600">
+                                    <span class="text-base md:text-xl font-bold text-blue-600">
                                         Rp {{ number_format($product->price, 0, ',', '.') }}
                                     </span>
                                 @endif
