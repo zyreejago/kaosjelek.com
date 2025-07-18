@@ -24,6 +24,7 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 transition-colors">Beranda</a>
+                    <a href="{{ route('kontak') }}" class="text-gray-700 hover:text-blue-600 transition-colors">Kontak</a>
                     <livewire:cart-counter />
                 </div>
                 
@@ -42,6 +43,7 @@
             <div id="mobile-menu" class="md:hidden hidden border-t border-gray-200 py-4">
                 <div class="flex flex-col space-y-4">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">Beranda</a>
+                    <a href="{{ route('kontak') }}" class="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">Kontak</a>
                     <a href="{{ route('cart') }}" class="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">Keranjang</a>
                 </div>
             </div>

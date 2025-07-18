@@ -163,3 +163,6 @@ Route::post('/reduce-stock', function(Request $request) {
 
 // Route untuk invoice
 Route::get('/orders/{order}/invoice', [\App\Http\Controllers\OrderController::class, 'invoice'])->name('orders.invoice');
+
+// Route untuk halaman kontak
+Route::get('/kontak', [\App\Http\Controllers\ContactController::class, 'index'])->name('kontak');

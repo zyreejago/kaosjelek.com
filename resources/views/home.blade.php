@@ -6,9 +6,9 @@
                 <!-- Static Grid for 1 or 2 banners -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     @foreach($banners as $banner)
-                        <div class="relative group cursor-pointer">
+                        <div class="relative cursor-pointer">
                             <!-- Banner Card -->
-                            <div class="aspect-[1/0.8] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                            <div class="aspect-[1/0.8] bg-white rounded-lg shadow-md overflow-hidden">
                                 @php
                                     $media = $banner->getFirstMedia('banner_images');
                                     $imagePath = $media ? $media->id . '/' . $media->file_name : null;
@@ -17,29 +17,12 @@
                                 @if($imagePath)
                                     <img src="/storage/{{ $imagePath }}" 
                                          alt="{{ $banner->title }}" 
-                                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-w-[700px] max-h-[700px] sm:max-w-none sm:max-h-none">
+                                         class="w-full h-full object-cover max-w-[700px] max-h-[700px] sm:max-w-none sm:max-h-none">
                                 @else
                                     <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                                         <span class="text-white font-bold text-lg">{{ substr($banner->title, 0, 1) }}</span>
                                     </div>
                                 @endif
-                                
-                                <!-- Overlay -->
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
-                                
-                                <!-- Content Overlay -->
-                                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                    @if($banner->title)
-                                        <h3 class="text-white text-sm font-semibold truncate" style="font-family: 'Papyrus', cursive;">
-                                            {{ $banner->title }}
-                                        </h3>
-                                    @endif
-                                    @if($banner->subtitle)
-                                        <p class="text-white/80 text-xs truncate mt-1">
-                                            {{ $banner->subtitle }}
-                                        </p>
-                                    @endif
-                                </div>
                                 
                                 <!-- Badge/Label -->
                                 @if($banner->button_text)
@@ -69,7 +52,7 @@
                                         @foreach($bannerChunk as $banner)
                                             <div class="relative group cursor-pointer">
                                                 <!-- Banner Card -->
-                                                <div class="aspect-square bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                                <div class="aspect-square bg-white rounded-lg shadow-md overflow-hidden">
                                                     @php
                                                         $media = $banner->getFirstMedia('banner_images');
                                                         $imagePath = $media ? $media->id . '/' . $media->file_name : null;
@@ -78,7 +61,7 @@
                                                     @if($imagePath)
                                                         <img src="/storage/{{ $imagePath }}" 
                                                              alt="{{ $banner->title }}" 
-                                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-w-[200px] max-h-[200px] sm:max-w-none sm:max-h-none">
+                                                             class="w-full h-full object-cover transition-transform duration-300 ">
                                                     @else
                                                         <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                                                             <span class="text-white font-bold text-lg">{{ substr($banner->title, 0, 1) }}</span>
@@ -89,18 +72,7 @@
                                                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                                                     
                                                     <!-- Content Overlay -->
-                                                    <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                                        @if($banner->title)
-                                                            <h3 class="text-white text-sm font-semibold truncate" style="font-family: 'Papyrus', cursive;">
-                                                                {{ $banner->title }}
-                                                            </h3>
-                                                        @endif
-                                                        @if($banner->subtitle)
-                                                            <p class="text-white/80 text-xs truncate mt-1">
-                                                                {{ $banner->subtitle }}
-                                                            </p>
-                                                        @endif
-                                                    </div>
+                                                    <!-- Menghapus bagian ini untuk menghilangkan judul dan subjudul saat hover -->
                                                     
                                                     <!-- Badge/Label -->
                                                     @if($banner->button_text)
